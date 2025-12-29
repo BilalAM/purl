@@ -44,6 +44,14 @@ class PurlService(private val mappingRepository: MappingRepository) {
         return constructCompleteShortUrl(shortUrlHashed)
     }
 
+    fun getLongUrl(purl: String): String {
+        val decodedId = Base64.getDecoder().decode(purl).toString(UTF_8)
+        return mappingRepository.findById(decodedId)
+            .orElseThrow { error("Mapping not found for $purl") }
+            .longUrl
+    }
+
+
     private fun constructCompleteShortUrl(shortUrl: String): String =
         BASE_URL + shortUrl
 
@@ -51,13 +59,6 @@ class PurlService(private val mappingRepository: MappingRepository) {
         Base64.getEncoder().encode(nextCounter.toByteArray()).toString(UTF_8)
 
     private fun getLongUrlHashed(longUrl: String): String = Hashing.sha256().hashString(longUrl, UTF_8).toString()
-
-    fun getLongUrl(purl: String): String {
-        val decodedId = Base64.getDecoder().decode(purl).toString(UTF_8)
-        return mappingRepository.findById(decodedId)
-            .orElseThrow { error("Mapping not found for $purl") }
-            .longUrl
-    }
 
 
     private fun getExistingMapping(longUrlHashed: String): Mapping? =

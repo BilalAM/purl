@@ -20,10 +20,9 @@ data class Mapping(
 
     @Id
     @Column(name = "id", nullable = false)
-    var id: Long? = null
-) {
+    var id: Long? = null,
+
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
     var createdAt: OffsetDateTime? = null
-
-}
+)
