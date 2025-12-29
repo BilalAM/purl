@@ -1,0 +1,13 @@
+package purl.url
+
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
+
+@SpringBootTest
+class PurlApplicationTests {
+
+    @Test
+    fun contextLoads() {
+    }
+
+}
