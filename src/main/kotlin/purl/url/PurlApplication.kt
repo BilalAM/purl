@@ -7,8 +7,5 @@ import org.springframework.boot.runApplication
 class PurlApplication
 
 fun main(args: Array<String>) {
-    System.getenv().forEach { (key, value) ->
-        println("$key=$value")
-    }
     runApplication<PurlApplication>(*args)
 }
