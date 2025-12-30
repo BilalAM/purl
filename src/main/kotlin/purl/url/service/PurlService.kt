@@ -4,17 +4,19 @@ import com.google.common.hash.Hashing
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.beans.factory.annotation.Value
 import purl.url.model.Mapping
 import purl.url.model.MappingRepository
 import java.util.*
 
 
 @Service
-class PurlService(private val mappingRepository: MappingRepository) {
+class PurlService(
+    private val mappingRepository: MappingRepository,
+    @Value("\${app.url}") private val appUrl: String
+) {
 
     companion object {
-        // insert emoji:skull here
-        const val BASE_URL = "http://localhost:8080/purl/"
         private val UTF_8 = Charsets.UTF_8
         private val logger: Logger = LoggerFactory.getLogger(PurlService::class.java)
     }
@@ -53,7 +55,7 @@ class PurlService(private val mappingRepository: MappingRepository) {
 
 
     private fun constructCompleteShortUrl(shortUrl: String): String =
-        BASE_URL + shortUrl
+        appUrl + shortUrl
 
     private fun getShortUrlHashed(nextCounter: String): String =
         Base64.getEncoder().encode(nextCounter.toByteArray()).toString(UTF_8)
