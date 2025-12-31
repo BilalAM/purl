@@ -6,4 +6,5 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
 
     <include file="changelog/30-01-create-mapping-table.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/30-01-alter-sequence-number.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
