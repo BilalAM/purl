@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import purl.url.exceptions.UserCreatedMaxUrlsException
 import purl.url.service.PurlService
 import purl.url.service.UserService
 import java.net.URI
@@ -22,7 +23,14 @@ class PurlController(
             return ResponseEntity.badRequest().body("Invalid url")
         }
         val userId = getAuthenticatedUserId()
-        return ResponseEntity.ok(purlService.generatePurl(request.url, userId))
+        try {
+            return ResponseEntity.ok(purlService.generatePurl(request.url, userId))
+        } catch (e: Exception) {
+            if (e is UserCreatedMaxUrlsException) return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                "Maximum number of URLs reached (3). Please delete some URLs before creating new ones."
+            )
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to generate URL.")
+        }
     }
 
     @GetMapping("/purl/{url}")

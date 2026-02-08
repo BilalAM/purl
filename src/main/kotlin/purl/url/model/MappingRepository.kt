@@ -16,4 +16,6 @@ interface MappingRepository : CrudRepository<Mapping, String> {
 
     fun findAllByUserIdOrderByCreatedAtDesc(userId: Long): List<Mapping>
 
+    fun countMappingByUserId(userId: Long): Long
+
 }
