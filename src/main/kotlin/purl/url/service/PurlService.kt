@@ -1,3 +1,4 @@
+
 package purl.url.service
 
 import com.google.common.hash.Hashing
@@ -22,11 +23,15 @@ class PurlService(
     }
 
 
-    fun generatePurl(longUrl: String): String {
+    fun generatePurl(longUrl: String, userId: Long? = null): String {
         val longUrlHashed = getLongUrlHashed(longUrl)
         val existingMapping = getExistingMapping(longUrlHashed)
         if (existingMapping != null) {
             logger.info("Found existing mapping for $longUrl, returning short url: ${existingMapping.shortUrl}")
+            if (userId != null && existingMapping.userId == null) {
+                existingMapping.userId = userId
+                mappingRepository.save(existingMapping)
+            }
             return constructCompleteShortUrl(existingMapping.shortUrl)
         }
 
@@ -40,7 +45,8 @@ class PurlService(
                 id = nextCounter.toLong(),
                 shortUrl = shortUrlHashed,
                 longUrl = longUrl,
-                longUrlHashed = longUrlHashed
+                longUrlHashed = longUrlHashed,
+                userId = userId
             )
         )
         return constructCompleteShortUrl(shortUrlHashed)

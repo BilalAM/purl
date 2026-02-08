@@ -7,4 +7,8 @@
 
     <include file="changelog/30-01-create-mapping-table.xml" relativeToChangelogFile="true"/>
     <include file="changelog/30-01-alter-sequence-number.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/08-02-create-users-table.xml" relativeToChangelogFile="true"/>
+
+    <include file="changelog/08-02-add-foreign-key.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

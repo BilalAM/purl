@@ -24,5 +24,9 @@ data class Mapping(
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
-    var createdAt: OffsetDateTime? = null
+    var createdAt: OffsetDateTime? = null,
+
+    @Column(name = "user_id", nullable = true)
+    var userId: Long? = null
+
 )

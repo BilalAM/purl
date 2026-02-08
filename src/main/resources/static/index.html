@@ -5,215 +5,341 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PURL - URL Shortener</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
         }
         .container {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 500px;
+            background: white; padding: 40px; border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2); width: 100%; max-width: 700px;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 28px;
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        h1 { color: #333; font-size: 28px; }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 14px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"], input[type="password"] {
+            flex: 1; padding: 14px 16px; border: 2px solid #e0e0e0;
+            border-radius: 8px; font-size: 16px; transition: border-color 0.2s;
         }
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
-            flex: 1;
-            padding: 14px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.2s;
-        }
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+        input:focus { outline: none; border-color: #667eea; }
         button {
             padding: 14px 24px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
+            color: white; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        button:active { transform: translateY(0); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-sm { padding: 8px 16px; font-size: 13px; }
+        .btn-outline { background: transparent; color: #667eea; border: 2px solid #667eea; }
+        .btn-outline:hover { background: #667eea; color: white; }
+        .btn-danger { background: #e74c3c; }
+        .btn-danger:hover { box-shadow: 0 4px 12px rgba(231,76,60,0.4); }
+        .btn-secondary { background: #666; }
         .result {
-            display: none;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-top: 20px;
+            display: none; padding: 20px; background: #f8f9fa;
+            border-radius: 8px; margin-top: 20px;
         }
-        .result.show {
-            display: block;
+        .result.show { display: block; }
+        .result-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .result-url { display: flex; align-items: center; gap: 10px; }
+        .result-url a { flex: 1; color: #667eea; font-size: 16px; word-break: break-all; text-decoration: none; }
+        .result-url a:hover { text-decoration: underline; }
+        .copy-btn { padding: 8px 16px; font-size: 14px; background: #333; }
+        .error { color: #e74c3c; padding: 12px; background: #fdf0ef; border-radius: 8px; margin-top: 20px; display: none; }
+        .error.show { display: block; }
+
+        .auth-bar { display: flex; gap: 8px; align-items: center; }
+        .auth-bar .username { color: #667eea; font-weight: 600; font-size: 14px; }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center;
         }
-        .result-label {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: white; padding: 32px; border-radius: 16px;
+            width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        .result-url {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .result-url a {
-            flex: 1;
-            color: #667eea;
-            font-size: 16px;
-            word-break: break-all;
-            text-decoration: none;
-        }
-        .result-url a:hover {
-            text-decoration: underline;
-        }
-        .copy-btn {
-            padding: 8px 16px;
-            font-size: 14px;
-            background: #333;
-        }
-        .error {
-            color: #e74c3c;
-            padding: 12px;
-            background: #fdf0ef;
-            border-radius: 8px;
-            margin-top: 20px;
-            display: none;
-        }
-        .error.show {
-            display: block;
-        }
+        .modal h2 { margin-bottom: 20px; color: #333; }
+        .modal .form-group { margin-bottom: 16px; }
+        .modal .form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #555; }
+        .modal .form-group input { width: 100%; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-actions button { flex: 1; }
+        .modal-error { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; }
+        .modal-error.show { display: block; }
+        .tab-bar { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+        .tab { padding: 10px 20px; cursor: pointer; color: #999; font-weight: 600; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .tab.active { color: #667eea; border-bottom-color: #667eea; }
+
+        .url-table-section { margin-top: 30px; display: none; }
+        .url-table-section.show { display: block; }
+        .url-table-section h3 { color: #333; margin-bottom: 16px; font-size: 18px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { text-align: left; padding: 10px 8px; color: #666; border-bottom: 2px solid #eee; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 10px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+        td a { color: #667eea; text-decoration: none; word-break: break-all; }
+        td a:hover { text-decoration: underline; }
+        .url-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .actions-cell { display: flex; gap: 6px; }
+        .empty-state { text-align: center; padding: 30px; color: #999; }
+        .edit-input { padding: 6px 10px !important; font-size: 13px !important; }
     </style>
 </head>
 <body>
-    <div class="container">
+<div class="container">
+    <div class="header">
         <h1>🔗 PURL</h1>
-        <p class="subtitle">Shorten your long URLs instantly</p>
-        
-        <div class="input-group">
-            <input type="text" id="urlInput" placeholder="Paste your long URL here..." />
-            <button id="shortenBtn" onclick="shortenUrl()">Shorten</button>
+        <div class="auth-bar" id="authBar">
+            <button class="btn-sm btn-outline" onclick="openModal('login')">Log In</button>
+            <button class="btn-sm" onclick="openModal('register')">Sign Up</button>
         </div>
-        
-        <div class="result" id="result">
-            <div class="result-label">Your shortened URL</div>
-            <div class="result-url">
-                <a href="#" id="shortUrl" target="_blank"></a>
-                <button class="copy-btn" onclick="copyUrl()">Copy</button>
-            </div>
+        <div class="auth-bar" id="userBar" style="display:none;">
+            <span class="username" id="displayUsername"></span>
+            <button class="btn-sm btn-secondary" onclick="logout()">Log Out</button>
         </div>
-        
-        <div class="error" id="error"></div>
+    </div>
+    <p class="subtitle">Shorten your long URLs instantly</p>
+
+    <div class="input-group">
+        <input type="text" id="urlInput" placeholder="Paste your long URL here..." />
+        <button id="shortenBtn" onclick="shortenUrl()">Shorten</button>
     </div>
 
-    <script>
-        const urlInput = document.getElementById('urlInput');
-        const shortenBtn = document.getElementById('shortenBtn');
-        const resultDiv = document.getElementById('result');
-        const shortUrlLink = document.getElementById('shortUrl');
-        const errorDiv = document.getElementById('error');
+    <div class="result" id="result">
+        <div class="result-label">Your shortened URL</div>
+        <div class="result-url">
+            <a href="#" id="shortUrl" target="_blank"></a>
+            <button class="copy-btn" onclick="copyUrl()">Copy</button>
+        </div>
+    </div>
 
-        urlInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') shortenUrl();
-        });
+    <div class="error" id="error"></div>
 
-        async function shortenUrl() {
-            const url = urlInput.value.trim();
-            
-            if (!url) {
-                showError('Please enter a URL');
-                return;
-            }
+    <div class="url-table-section" id="urlTableSection">
+        <h3>📋 Your Saved URLs</h3>
+        <table>
+            <thead>
+            <tr><th>Short URL</th><th>Long URL</th><th>Created</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="urlTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState">No saved URLs yet. Shorten a URL to get started!</div>
+    </div>
+</div>
 
-            shortenBtn.disabled = true;
-            shortenBtn.textContent = 'Shortening...';
-            hideError();
-            resultDiv.classList.remove('show');
+<!-- Auth Modal -->
+<div class="modal-overlay" id="authModal">
+    <div class="modal">
+        <div class="tab-bar">
+            <div class="tab active" id="tabLogin" onclick="switchTab('login')">Log In</div>
+            <div class="tab" id="tabRegister" onclick="switchTab('register')">Sign Up</div>
+        </div>
+        <div class="form-group">
+            <label for="authUsername">Username</label>
+            <input type="text" id="authUsername" placeholder="Enter username" />
+        </div>
+        <div class="form-group">
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="Enter password" />
+        </div>
+        <div class="modal-error" id="modalError"></div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+            <button id="authSubmitBtn" onclick="submitAuth()">Log In</button>
+        </div>
+    </div>
+</div>
 
-            try {
-                const response = await fetch('/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ url: url })
-                });
+<script>
+    let currentUser = null;
+    let authMode = 'login';
 
-                if (!response.ok) {
-                    const text = await response.text();
-                    throw new Error(text || 'Failed to shorten URL');
-                }
+    // === CSRF Helper ===
+    function getCsrfToken() {
+        const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+        return match ? decodeURIComponent(match[1]) : null;
+    }
 
-                const shortUrl = await response.text();
-                shortUrlLink.href = shortUrl;
-                shortUrlLink.textContent = shortUrl;
-                resultDiv.classList.add('show');
-            } catch (err) {
-                showError(err.message);
-            } finally {
-                shortenBtn.disabled = false;
-                shortenBtn.textContent = 'Shorten';
-            }
-        }
+    function secureHeaders(extra = {}) {
+        const headers = { 'Content-Type': 'application/json', ...extra };
+        const csrf = getCsrfToken();
+        if (csrf) headers['X-XSRF-TOKEN'] = csrf;
+        return headers;
+    }
 
-        function copyUrl() {
-            navigator.clipboard.writeText(shortUrlLink.href).then(() => {
-                const copyBtn = document.querySelector('.copy-btn');
-                copyBtn.textContent = 'Copied!';
-                setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+    // Fetch CSRF cookie on page load (Spring Security sets it on first request)
+    fetch('/api/auth/me', { credentials: 'same-origin' }).then(r => {
+        if (r.ok) return r.json(); else throw 'not logged in';
+    }).then(data => {
+        currentUser = data.username;
+        onLoginSuccess();
+    }).catch(() => {});
+
+    // === Auth Modal ===
+    function openModal(mode) {
+        authMode = mode; switchTab(mode);
+        document.getElementById('authModal').classList.add('show');
+        document.getElementById('authUsername').value = '';
+        document.getElementById('authPassword').value = '';
+        hideModalError();
+    }
+    function closeModal() { document.getElementById('authModal').classList.remove('show'); }
+    function switchTab(mode) {
+        authMode = mode;
+        document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+        document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+        document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Log In' : 'Sign Up';
+    }
+    function showModalError(msg) { const el = document.getElementById('modalError'); el.textContent = msg; el.classList.add('show'); }
+    function hideModalError() { document.getElementById('modalError').classList.remove('show'); }
+
+    async function submitAuth() {
+        const username = document.getElementById('authUsername').value.trim();
+        const password = document.getElementById('authPassword').value.trim();
+        if (!username || !password) { showModalError('Please fill in all fields'); return; }
+
+        const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST', credentials: 'same-origin',
+                headers: secureHeaders(),
+                body: JSON.stringify({ username, password })
             });
-        }
+            const data = await res.json();
+            if (!res.ok) { showModalError(data.error || 'Something went wrong'); return; }
+            currentUser = data.username;
+            onLoginSuccess();
+            closeModal();
+        } catch (e) { showModalError('Network error'); }
+    }
 
-        function showError(msg) {
-            errorDiv.textContent = msg;
-            errorDiv.classList.add('show');
-        }
+    function onLoginSuccess() {
+        document.getElementById('authBar').style.display = 'none';
+        document.getElementById('userBar').style.display = 'flex';
+        document.getElementById('displayUsername').textContent = '👤 ' + currentUser;
+        document.getElementById('urlTableSection').classList.add('show');
+        loadUserUrls();
+    }
 
-        function hideError() {
-            errorDiv.classList.remove('show');
-        }
-    </script>
+    async function logout() {
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin', headers: secureHeaders() });
+        currentUser = null;
+        document.getElementById('authBar').style.display = 'flex';
+        document.getElementById('userBar').style.display = 'none';
+        document.getElementById('urlTableSection').classList.remove('show');
+        document.getElementById('urlTableBody').innerHTML = '';
+    }
+
+    // === URL Table ===
+    async function loadUserUrls() {
+        try {
+            const res = await fetch('/api/urls', { credentials: 'same-origin' });
+            if (!res.ok) return;
+            renderUrlTable(await res.json());
+        } catch (_) {}
+    }
+
+    function renderUrlTable(urls) {
+        const tbody = document.getElementById('urlTableBody');
+        const empty = document.getElementById('emptyState');
+        tbody.innerHTML = '';
+        if (urls.length === 0) { empty.style.display = 'block'; return; }
+        empty.style.display = 'none';
+        urls.forEach(u => {
+            const tr = document.createElement('tr'); tr.id = 'row-' + u.id;
+            const created = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-';
+            tr.innerHTML = `
+                    <td class="url-cell"><a href="${u.shortUrl}" target="_blank">${u.shortUrl}</a></td>
+                    <td class="url-cell" id="long-${u.id}"><a href="${u.longUrl}" target="_blank" title="${u.longUrl}">${u.longUrl}</a></td>
+                    <td>${created}</td>
+                    <td><div class="actions-cell">
+                        <button class="btn-sm btn-outline" onclick="startEdit(${u.id}, '${escapeJs(u.longUrl)}')">Edit</button>
+                        <button class="btn-sm btn-danger" onclick="deleteUrl(${u.id})">Delete</button>
+                    </div></td>`;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function escapeJs(str) { return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"'); }
+
+    function startEdit(id, currentLongUrl) {
+        const cell = document.getElementById('long-' + id);
+        cell.innerHTML = `<div style="display:flex;gap:6px;">
+                <input type="text" class="edit-input" id="edit-input-${id}" value="${currentLongUrl}" />
+                <button class="btn-sm" onclick="saveEdit(${id})">Save</button>
+                <button class="btn-sm btn-secondary" onclick="loadUserUrls()">✕</button>
+            </div>`;
+        document.getElementById('edit-input-' + id).focus();
+    }
+
+    async function saveEdit(id) {
+        const newUrl = document.getElementById('edit-input-' + id).value.trim();
+        if (!newUrl) return;
+        try {
+            const res = await fetch('/api/urls/' + id, {
+                method: 'PUT', credentials: 'same-origin',
+                headers: secureHeaders(),
+                body: JSON.stringify({ longUrl: newUrl })
+            });
+            if (res.ok) loadUserUrls(); else alert('Failed to update');
+        } catch (_) { alert('Network error'); }
+    }
+
+    async function deleteUrl(id) {
+        if (!confirm('Delete this URL?')) return;
+        try {
+            const res = await fetch('/api/urls/' + id, { method: 'DELETE', credentials: 'same-origin', headers: secureHeaders() });
+            if (res.ok) loadUserUrls(); else alert('Failed to delete');
+        } catch (_) { alert('Network error'); }
+    }
+
+    // === Shorten URL ===
+    const urlInput = document.getElementById('urlInput');
+    const shortenBtn = document.getElementById('shortenBtn');
+    const resultDiv = document.getElementById('result');
+    const shortUrlLink = document.getElementById('shortUrl');
+    const errorDiv = document.getElementById('error');
+
+    urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') shortenUrl(); });
+
+    async function shortenUrl() {
+        const url = urlInput.value.trim();
+        if (!url) { showError('Please enter a URL'); return; }
+        shortenBtn.disabled = true; shortenBtn.textContent = 'Shortening...';
+        hideError(); resultDiv.classList.remove('show');
+        try {
+            const response = await fetch('/generate', {
+                method: 'POST', credentials: 'same-origin',
+                headers: secureHeaders(),
+                body: JSON.stringify({ url: url })
+            });
+            if (!response.ok) { throw new Error(await response.text() || 'Failed to shorten URL'); }
+            const shortUrl = await response.text();
+            shortUrlLink.href = shortUrl; shortUrlLink.textContent = shortUrl;
+            resultDiv.classList.add('show');
+            if (currentUser) loadUserUrls();
+        } catch (err) { showError(err.message); }
+        finally { shortenBtn.disabled = false; shortenBtn.textContent = 'Shorten'; }
+    }
+
+    function copyUrl() {
+        navigator.clipboard.writeText(shortUrlLink.href).then(() => {
+            const copyBtn = document.querySelector('.copy-btn');
+            copyBtn.textContent = 'Copied!'; setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+        });
+    }
+    function showError(msg) { errorDiv.textContent = msg; errorDiv.classList.add('show'); }
+    function hideError() { errorDiv.classList.remove('show'); }
+</script>
 </body>
 </html>

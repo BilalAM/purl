@@ -60,6 +60,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-liquibase</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/com.osmerion.kotlin/kotlin-base32-jvm -->
         <dependency>
             <groupId>com.osmerion.kotlin</groupId>

@@ -14,4 +14,6 @@ interface MappingRepository : CrudRepository<Mapping, String> {
 
     fun findMappingByLongUrlHashed(longUrlHashed: String): List<Mapping?>
 
+    fun findAllByUserIdOrderByCreatedAtDesc(userId: Long): List<Mapping>
+
 }
