@@ -10,5 +10,6 @@
     <include file="changelog/08-02-create-users-table.xml" relativeToChangelogFile="true"/>
 
     <include file="changelog/08-02-add-foreign-key.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/13-03-add-link-analysis-column.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

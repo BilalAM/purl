@@ -1,6 +1,5 @@
 package purl.url.controller
 
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
@@ -30,18 +29,6 @@ class PurlController(
                 "Maximum number of URLs reached (3). Please delete some URLs before creating new ones."
             )
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unable to generate URL.")
-        }
-    }
-
-    @GetMapping("/purl/{url}")
-    fun redirect(@PathVariable url: String): ResponseEntity<Void> {
-        try {
-            val originalUrl = purlService.getLongUrl(url)
-            val httpHeaders = HttpHeaders()
-            httpHeaders.location = URI.create(originalUrl)
-            return ResponseEntity(httpHeaders, HttpStatus.FOUND)
-        } catch (e: Exception) {
-            return ResponseEntity(HttpStatus.NOT_FOUND)
         }
     }
 

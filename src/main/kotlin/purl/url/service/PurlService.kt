@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import purl.url.exceptions.UserCreatedMaxUrlsException
+import purl.url.linkanalysis.LinkAnalysisLLMService
 import purl.url.model.Mapping
 import purl.url.model.MappingRepository
 import java.util.*
@@ -13,6 +14,7 @@ import java.util.*
 @Service
 class PurlService(
     private val mappingRepository: MappingRepository,
+    private val linkAnalysisLLMService: LinkAnalysisLLMService,
     @Value("\${app.url}") private val appUrl: String
 ) {
 
@@ -46,13 +48,26 @@ class PurlService(
         val shortUrlEncoded = encodeCounter(nextCounter)
         logger.info("Generated new short url: $shortUrlEncoded for $longUrl")
 
+        val analysis = try {
+            val result = linkAnalysisLLMService.doAnalysis(longUrl)
+            mapOf(
+                "originalUrl" to result.originalUrl,
+                "previewDescription" to result.previewDescription,
+                "previewImageUrl" to result.previewImageUrl
+            )
+        } catch (e: Exception) {
+            logger.warn("Link analysis failed for {}: {}", longUrl, e.message)
+            null
+        }
+
         mappingRepository.save(
             Mapping(
                 id = nextCounter.toLong(),
                 shortUrl = shortUrlEncoded,
                 longUrl = longUrl,
                 longUrlHashed = longUrlHashed,
-                userId = userId
+                userId = userId,
+                linkAnalysis = analysis
             )
         )
         return constructCompleteShortUrl(shortUrlEncoded)
@@ -60,17 +75,18 @@ class PurlService(
 
     private fun validateMaxUrlsOfUser(userId: Long?) {
         userId ?: return
-        if (mappingRepository.countMappingByUserId(userId) > 0) {
+        if (mappingRepository.countMappingByUserId(userId) > 3) {
             throw UserCreatedMaxUrlsException()
         }
     }
 
-    fun getLongUrl(purl: String): String {
+    fun getMapping(purl: String): Mapping {
         val decodedId = Base64.getUrlDecoder().decode(purl).toString(Charsets.UTF_8)
         return mappingRepository.findById(decodedId)
             .orElseThrow { NoSuchElementException("Mapping not found for $purl") }
-            .longUrl
     }
+
+    fun getLongUrl(purl: String): String = getMapping(purl).longUrl
 
     private fun constructCompleteShortUrl(shortUrl: String): String =
         appUrl + shortUrl

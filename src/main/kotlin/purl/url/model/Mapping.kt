@@ -4,6 +4,8 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.OffsetDateTime
 
 
@@ -27,6 +29,10 @@ data class Mapping(
     var createdAt: OffsetDateTime? = null,
 
     @Column(name = "user_id", nullable = true)
-    var userId: Long? = null
+    var userId: Long? = null,
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "link_analysis", columnDefinition = "jsonb")
+    var linkAnalysis: Map<String, String>? = null
 
 )
