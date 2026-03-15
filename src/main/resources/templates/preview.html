@@ -12,117 +12,325 @@
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0f0f1a;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
-        }
-        .wrapper { width: 100%; max-width: 560px; }
-        .card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
             overflow: hidden;
+        }
+
+        /* Animated background blobs */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite;
+        }
+        body::before {
+            width: 400px; height: 400px;
+            background: #667eea;
+            top: -100px; left: -100px;
+        }
+        body::after {
+            width: 350px; height: 350px;
+            background: #764ba2;
+            bottom: -80px; right: -80px;
+            animation-delay: -4s;
+            animation-direction: reverse;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 20px) scale(1.05); }
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 520px;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(255,255,255,0.97);
+            border-radius: 20px;
+            box-shadow:
+                0 4px 24px rgba(0,0,0,0.12),
+                0 24px 48px rgba(0,0,0,0.16);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        /* Image section */
+        .card-image-wrapper {
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 60px;
         }
         .card-image {
             width: 100%;
-            max-height: 200px;
+            max-height: 180px;
             object-fit: cover;
+            display: block;
         }
-        .card-body { padding: 32px; }
-        .badge {
-            display: inline-block;
+        .card-image-wrapper .overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 60px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.3));
+        }
+
+        /* No-image header band */
+        .card-header-band {
+            height: 6px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-size: 11px;
+        }
+
+        .card-body { padding: 28px 28px 24px; }
+
+        /* Site info row */
+        .site-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .site-favicon {
+            width: 20px; height: 20px;
+            border-radius: 4px;
+            background: #f0f0f0;
+        }
+        .site-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge {
+            margin-left: auto;
+            background: rgba(102,126,234,0.1);
+            color: #667eea;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
             padding: 4px 10px;
-            border-radius: 4px;
-            margin-bottom: 16px;
+            border-radius: 20px;
         }
-        .site-name {
-            color: #999;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
+
         .description {
             color: #333;
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 24px;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 12px;
         }
-        .url-display {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 24px;
-            word-break: break-all;
-            font-size: 13px;
-            color: #666;
-        }
-        .url-display .label {
-            color: #999;
+        .ai-disclaimer {
             font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: block;
-            margin-bottom: 4px;
+            font-weight: 600;
+            color: #a0a0b0;
+            font-style: italic;
+            margin-bottom: 20px;
         }
-        .continue-btn {
+
+        /* URL pill */
+        .url-display {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: #f5f6f8;
+            border: 1px solid #ecedf0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+        }
+        .url-icon {
+            flex-shrink: 0;
+            width: 16px; height: 16px;
+            color: #999;
+        }
+        .url-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: #555;
+            word-break: break-all;
+        }
+
+        /* Button */
+        .go-btn {
             display: block;
             width: 100%;
-            padding: 16px;
+            padding: 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
             transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
         }
-        .continue-btn:hover {
+        .go-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+            box-shadow: 0 6px 20px rgba(102,126,234,0.4);
         }
-        .continue-btn:active { transform: translateY(0); }
+        .go-btn:active { transform: translateY(0); }
+
+        /* Progress */
+        .progress-section {
+            margin-top: 16px;
+            text-align: center;
+        }
+        .progress-track {
+            width: 100%;
+            height: 3px;
+            background: #ecedf0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+        .countdown-text {
+            font-size: 12px;
+            color: #aaa;
+            letter-spacing: 0.3px;
+        }
+        .cancel-link {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #bbb;
+            cursor: pointer;
+            text-decoration: none;
+            border-bottom: 1px dashed #ccc;
+            transition: color 0.2s;
+        }
+        .cancel-link:hover { color: #888; border-color: #888; }
+        .cancelled .progress-fill { transition: none; }
+
         .powered-by {
             text-align: center;
-            margin-top: 16px;
-            font-size: 12px;
-            color: rgba(255,255,255,0.6);
+            margin-top: 20px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            letter-spacing: 0.5px;
+        }
+        .powered-by a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
     <div class="wrapper">
         <div class="card">
-            <img th:if="${!imageUrl.isEmpty()}"
-                 th:src="${imageUrl}"
-                 class="card-image"
-                 alt="Preview image" />
+            <!-- Image or thin gradient band -->
+            <div th:if="${!imageUrl.isEmpty()}" class="card-image-wrapper">
+                <img th:src="${imageUrl}"
+                     class="card-image"
+                     alt="Preview image"
+                     onerror="this.parentElement.outerHTML='<div class=\'card-header-band\'></div>'" />
+                <div class="overlay"></div>
+            </div>
+            <div th:if="${imageUrl.isEmpty()}" class="card-header-band"></div>
+
             <div class="card-body">
-                <div class="badge">Link Preview</div>
-                <div class="site-name" th:text="${siteName}"></div>
-                <p class="description" th:text="${description}"></p>
-                <div class="url-display">
-                    <span class="label">Destination</span>
-                    <span th:text="${originalUrl}"></span>
+                <!-- Site info row -->
+                <div class="site-row">
+                    <img class="site-favicon"
+                         th:src="'https://www.google.com/s2/favicons?sz=32&domain=' + ${siteName}"
+                         alt=""
+                         onerror="this.style.display='none'" />
+                    <span class="site-name" th:text="${siteName}"></span>
+                    <span class="badge">Preview</span>
                 </div>
-                <a class="continue-btn" th:href="${originalUrl}">
-                    Continue to site &rarr;
+
+                <p class="description" th:text="${description}"></p>
+                <p class="ai-disclaimer">This description was generated by A.I. based on the website content and may not be fully accurate.</p>
+
+                <!-- URL pill -->
+                <div class="url-display">
+                    <svg class="url-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M6.5 9.5L9.5 6.5M7 11l-1.15 1.15a2.5 2.5 0 11-3.54-3.54L3.5 7.5M9 5l1.15-1.15a2.5 2.5 0 113.54 3.54L12.5 8.5"/>
+                    </svg>
+                    <span class="url-text" th:text="${originalUrl}"></span>
+                </div>
+
+                <a class="go-btn" id="goBtn" th:href="${originalUrl}">
+                    Go to site &rarr;
                 </a>
+
+                <div class="progress-section" id="progressSection">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="countdown-text" id="countdownText">Redirecting in 5 seconds...</span>
+                    <br/>
+                    <span class="cancel-link" id="cancelLink">Cancel redirect</span>
+                </div>
             </div>
         </div>
-        <div class="powered-by">Powered by PURL</div>
+        <div class="powered-by">Powered by <a href="/">PURL</a></div>
     </div>
+
+    <script th:inline="javascript">
+        const originalUrl = /*[[${originalUrl}]]*/ '';
+        const totalSeconds = 8;
+        let remaining = totalSeconds;
+        let timer;
+
+        const fill = document.getElementById('progressFill');
+        const text = document.getElementById('countdownText');
+        const section = document.getElementById('progressSection');
+
+        // Start progress bar animation
+        requestAnimationFrame(() => fill.style.width = '100%');
+        fill.style.transition = `width ${totalSeconds}s linear`;
+
+        timer = setInterval(() => {
+            remaining--;
+            if (remaining <= 0) {
+                clearInterval(timer);
+                window.location.href = originalUrl;
+            } else {
+                text.textContent = `Redirecting in ${remaining} second${remaining > 1 ? 's' : ''}...`;
+            }
+        }, 1000);
+
+        document.getElementById('goBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            clearInterval(timer);
+            window.location.href = originalUrl;
+        });
+
+        document.getElementById('cancelLink').addEventListener('click', () => {
+            clearInterval(timer);
+            section.classList.add('cancelled');
+            fill.style.width = fill.getBoundingClientRect().width + 'px';
+            text.textContent = 'Redirect cancelled.';
+            document.getElementById('cancelLink').style.display = 'none';
+        });
+    </script>
 </body>
 </html>
