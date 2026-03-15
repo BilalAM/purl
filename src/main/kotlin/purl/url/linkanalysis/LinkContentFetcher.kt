@@ -2,6 +2,7 @@ package purl.url.linkanalysis
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 
@@ -17,23 +18,34 @@ data class LinkPreview(
 @Service
 class LinkContentFetcher {
 
-    fun fetch(url: String): LinkPreview {
-        val document = Jsoup.connect(url)
-            .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
-            .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-            .header("Accept-Language", "en-US,en;q=0.9")
-            .followRedirects(true)
-            .timeout(10_000)
-            .get()
+    companion object {
+        private val logger = LoggerFactory.getLogger(LinkContentFetcher::class.java)
+    }
 
-        return LinkPreview(
-            title = document.meta("og:title", "twitter:title") ?: document.title().takeIf { it.isNotBlank() },
-            description = document.meta("og:description", "twitter:description", "description"),
-            siteName = document.meta("og:site_name"),
-            imageUrl = document.meta("og:image"),
-            type = document.meta("og:type"),
-            bodySnippet = document.extractBodySnippet()
-        )
+    fun fetch(url: String): LinkPreview? {
+
+        runCatching {
+            val document = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                .header("Accept-Language", "en-US,en;q=0.9")
+                .followRedirects(true)
+                .timeout(10_000)
+                .get()
+
+            return LinkPreview(
+                title = document.meta("og:title", "twitter:title") ?: document.title().takeIf { it.isNotBlank() },
+                description = document.meta("og:description", "twitter:description", "description"),
+                siteName = document.meta("og:site_name"),
+                imageUrl = document.meta("og:image"),
+                type = document.meta("og:type"),
+                bodySnippet = document.extractBodySnippet()
+            )
+        }
+            .getOrElse {
+                logger.warn("Failed to fetch link content", it)
+                return null
+            }
     }
 
     private fun Document.meta(vararg keys: String): String? {

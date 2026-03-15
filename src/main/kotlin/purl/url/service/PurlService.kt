@@ -49,7 +49,7 @@ class PurlService(
         logger.info("Generated new short url: $shortUrlEncoded for $longUrl")
 
         val analysis = try {
-            val result = linkAnalysisLLMService.doAnalysis(longUrl)
+            val result = linkAnalysisLLMService.doAnalysis(longUrl,shortUrlEncoded)
             mapOf(
                 "originalUrl" to result.originalUrl,
                 "previewDescription" to result.previewDescription,
