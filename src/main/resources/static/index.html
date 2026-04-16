@@ -3,336 +3,646 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PURL - URL Shortener</title>
+    <title>PURL — Smart URL Shortener</title>
+    <meta name="description" content="PURL — Smart URL shortener with AI-powered link previews. Shorten URLs, manage links, and share with confidence.">
+    <meta property="og:title" content="PURL — Smart URL Shortener">
+    <meta property="og:description" content="Transform long URLs into clean, shareable links with AI-powered destination previews.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect rx='8' width='32' height='32' fill='%230d9488'/><text x='50%25' y='55%25' text-anchor='middle' dominant-baseline='middle' font-size='18' font-weight='bold' fill='white' font-family='monospace'>P</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        :root {
+            --bg: #fafaf9;
+            --bg-card: #ffffff;
+            --bg-elevated: #f3f3f0;
+            --bg-nav: rgba(250, 250, 249, 0.88);
+            --border: rgba(28, 25, 23, 0.06);
+            --border-hover: rgba(28, 25, 23, 0.12);
+            --text: #44403c;
+            --text-heading: #1c1917;
+            --text-secondary: #57534e;
+            --text-muted: #a8a29e;
+            --accent: #0d9488;
+            --accent-light: #14b8a6;
+            --accent-dark: #0f766e;
+            --accent-glow: rgba(13, 148, 136, 0.08);
+            --danger: #ef4444;
+            --gradient: linear-gradient(135deg, #0d9488, #14b8a6);
+            --font: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --shadow: rgba(100, 100, 111, 0.15) 0px 7px 29px 0px;
+            --shadow-hover: rgba(100, 100, 111, 0.25) 0px 12px 40px 0px;
+            --shadow-sm: 0 2px 8px rgba(100, 100, 111, 0.08);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
         }
+
+        /* === Reset === */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font);
+            font-size: 1rem;
+            line-height: 1.5;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 40px 20px;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* === Layout === */
+        .content { position: relative; z-index: 1; }
 
         .container {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 960px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
         }
 
-        .header {
+        /* === Navigation === */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 4.5rem;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
+            padding: 0 2rem;
+            background: var(--bg-nav);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            z-index: 50;
+            transition: all 0.3s ease;
         }
 
-        h1 {
-            color: #333;
-            font-size: 28px;
+        .nav-brand {
+            font-family: var(--mono);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            letter-spacing: -0.5px;
         }
 
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
+        .nav-brand .bracket { color: var(--accent); }
 
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        input[type="text"], input[type="password"] {
-            flex: 1;
-            padding: 14px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.2s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        button {
-            padding: 14px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 13px;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn-outline:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-danger {
-            background: #e74c3c;
-        }
-
-        .btn-danger:hover {
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
-        }
-
-        .btn-secondary {
-            background: #666;
-        }
-
-        .result {
-            display: none;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .result.show {
-            display: block;
-        }
-
-        .result-label {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .result-url {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .result-url a {
-            flex: 1;
-            color: #667eea;
-            font-size: 16px;
-            word-break: break-all;
-            text-decoration: none;
-        }
-
-        .result-url a:hover {
-            text-decoration: underline;
-        }
-
-        .copy-btn {
-            padding: 8px 16px;
-            font-size: 14px;
-            background: #333;
-        }
-
-        .error {
-            color: #e74c3c;
-            padding: 12px;
-            background: #fdf0ef;
-            border-radius: 8px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .error.show {
-            display: block;
-        }
-
-        .auth-bar {
+        .nav-auth {
             display: flex;
             gap: 8px;
             align-items: center;
         }
 
-        .auth-bar .username {
-            color: #667eea;
-            font-weight: 600;
-            font-size: 14px;
+        .nav-username {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent);
         }
 
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 100;
+        /* === Buttons === */
+        .btn {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal {
-            background: white;
-            padding: 32px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .modal .form-group {
-            margin-bottom: 16px;
-        }
-
-        .modal .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .modal .form-group input {
-            width: 100%;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .modal-actions button {
-            flex: 1;
-        }
-
-        .modal-error {
-            color: #e74c3c;
-            font-size: 13px;
-            margin-top: 10px;
-            display: none;
-        }
-
-        .modal-error.show {
-            display: block;
-        }
-
-        .tab-bar {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-        }
-
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            color: #999;
+            gap: 0.5rem;
+            padding: 0.65em 1.5em;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font);
+            font-size: 0.875rem;
             font-weight: 600;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            white-space: nowrap;
         }
 
-        .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
         }
 
-        .url-table-section {
-            margin-top: 30px;
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-sm {
+            padding: 0.45em 1em;
+            font-size: 0.8rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent);
+            border: 1.5px solid var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.06);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.18);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .btn-secondary {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-hover);
+            color: var(--text-heading);
+        }
+
+        /* === Hero Section === */
+        .hero {
+            padding: 8rem 0 4rem;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--accent);
+            background: var(--accent-glow);
+            border: 1px solid rgba(13, 148, 136, 0.15);
+            padding: 0.4em 1.2em;
+            border-radius: 9999px;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.75rem;
+        }
+
+        .hero-title {
+            font-family: var(--mono);
+            font-size: 4.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0d9488, #14b8a6, #0f766e, #0d9488);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            margin-bottom: 1.25rem;
+            letter-spacing: -2px;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--text-heading);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .hero-desc {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 540px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        /* === Shortener Input === */
+        .shortener {
+            max-width: 640px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 6px;
+            box-shadow: var(--shadow);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .shortener:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow), var(--shadow);
+        }
+
+        .shortener-prompt {
+            font-family: var(--mono);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            padding: 0 4px 0 14px;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .shortener input {
+            flex: 1;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            color: var(--text-heading);
+            font-family: var(--mono);
+            font-size: 0.875rem;
+            padding: 0.75rem;
+            outline: none;
+        }
+
+        .shortener input::placeholder { color: var(--text-muted); }
+
+        .shortener .btn-shorten {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.75rem;
+            border-radius: var(--radius-sm);
+            font-family: var(--font);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .shortener .btn-shorten:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .shortener .btn-shorten:active { transform: translateY(0); }
+
+        .shortener .btn-shorten:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* === Result === */
+        .result {
             display: none;
+            max-width: 640px;
+            margin: 1.25rem auto 0;
+            background: var(--accent-glow);
+            border: 1px solid rgba(13, 148, 136, 0.15);
+            border-radius: var(--radius-sm);
+            padding: 1rem 1.25rem;
+            animation: fadeInUp 0.3s ease-out;
         }
 
-        .url-table-section.show {
+        .result.show { display: block; }
+
+        .result-label {
+            font-size: 0.7rem;
+            font-family: var(--mono);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-url {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .result-url a {
+            flex: 1;
+            font-family: var(--mono);
+            color: var(--accent);
+            font-size: 0.95rem;
+            font-weight: 500;
+            word-break: break-all;
+            text-decoration: none;
+        }
+
+        .result-url a:hover { text-decoration: underline; }
+
+        .copy-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            color: var(--text-heading);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .copy-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* === Error === */
+        .error {
+            display: none;
+            max-width: 640px;
+            margin: 1rem auto 0;
+            padding: 0.75rem 1rem;
+            background: rgba(239, 68, 68, 0.06);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: var(--radius-sm);
+            color: var(--danger);
+            font-size: 0.875rem;
+        }
+
+        .error.show { display: block; }
+
+        /* === Sections === */
+        .section { padding: 4rem 0; }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-tag {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+            text-transform: uppercase;
             display: block;
+            margin-bottom: 0.75rem;
         }
 
-        .url-table-section h3 {
-            color: #333;
-            margin-bottom: 16px;
-            font-size: 18px;
+        .section-title {
+            font-size: clamp(1.875rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: var(--text-heading);
+            text-transform: uppercase;
+        }
+
+        .section-divider {
+            width: 48px;
+            height: 3px;
+            background: var(--gradient);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* === Steps (How It Works) === */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            border-color: var(--accent);
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .step-number {
+            font-family: var(--mono);
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.3;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        .step-icon {
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .step h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 0.5rem;
+        }
+
+        .step p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* === Features Grid === */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .feature-icon {
+            width: 40px; height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-glow);
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            color: var(--accent);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon { transform: scale(1.1) rotate(5deg); }
+
+        .feature-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.875rem;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* === Tech Stack === */
+        .tech-section {
+            padding: 1.5rem 0 4rem;
+            text-align: center;
+        }
+
+        .tech-label {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .tech-badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tech-badge {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-heading);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+        }
+
+        .tech-badge:hover {
+            color: var(--accent);
+            background: var(--accent-glow);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* === URL Table Section === */
+        .url-table-section {
+            display: none;
+            padding: 0 0 4rem;
+        }
+
+        .url-table-section.show { display: block; }
+
+        .url-table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .url-table-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-heading);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
             table-layout: fixed;
         }
 
         th {
             text-align: left;
-            padding: 10px 8px;
-            color: #666;
-            border-bottom: 2px solid #eee;
-            font-size: 12px;
+            padding: 0.75rem 1rem;
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
         }
 
         td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #f0f0f0;
-            vertical-align: middle;
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text);
         }
+
+        tr:last-child td { border-bottom: none; }
+
+        tr:hover td { background: var(--accent-glow); }
 
         td a {
-            color: #667eea;
+            color: var(--accent);
             text-decoration: none;
-            word-break: break-all;
+            font-family: var(--mono);
+            font-size: 0.75rem;
         }
 
-        td a:hover {
-            text-decoration: underline;
-        }
+        td a:hover { text-decoration: underline; }
 
         .url-cell {
-            max-width: 340px;
+            max-width: 280px;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: normal;
-            word-break: break-all;
+            white-space: nowrap;
         }
 
         .actions-cell {
@@ -342,86 +652,453 @@
 
         .empty-state {
             text-align: center;
-            padding: 30px;
-            color: #999;
+            padding: 2.5rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
         }
 
         .edit-input {
+            background: var(--bg-elevated) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--text-heading) !important;
             padding: 6px 10px !important;
-            font-size: 13px !important;
+            border-radius: var(--radius-sm) !important;
+            font-size: 0.75rem !important;
+            font-family: var(--mono) !important;
+            outline: none !important;
+        }
+
+        .edit-input:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px var(--accent-glow) !important;
+        }
+
+        /* === Auth Modal === */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2.25rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
+        }
+
+        .tab-bar {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            padding: 0.65rem 1.25rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .tab:hover:not(.active) { color: var(--text-secondary); }
+
+        .modal .form-group { margin-bottom: 1rem; }
+
+        .modal .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .modal .form-group input {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-heading);
+            font-size: 0.875rem;
+            font-family: var(--font);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .modal .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .modal .form-group input::placeholder { color: var(--text-muted); }
+
+        .modal-error {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 0.65rem;
+            display: none;
+        }
+
+        .modal-error.show { display: block; }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.65rem;
+            margin-top: 1.5rem;
+        }
+
+        .modal-actions .btn { flex: 1; }
+
+        /* === Footer === */
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .footer p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover { text-decoration: underline; }
+
+        .footer-brand {
+            font-family: var(--mono);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* === Animations === */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* === Focus styles === */
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        /* === Responsive === */
+        @media (max-width: 768px) {
+            .nav { padding: 0 1rem; }
+
+            .hero { padding: 7rem 0 3rem; }
+
+            .hero-title {
+                font-size: 2.75rem;
+                letter-spacing: -1px;
+            }
+
+            .hero-subtitle { font-size: 1.1rem; }
+
+            .shortener {
+                flex-direction: column;
+                padding: 6px;
+                gap: 0;
+            }
+
+            .shortener-prompt { display: none; }
+            .shortener input { padding: 0.85rem 0.75rem; }
+
+            .shortener .btn-shorten {
+                width: 100%;
+                padding: 0.85rem;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+                max-width: 360px;
+            }
+
+            .features-grid { grid-template-columns: 1fr; }
+
+            .section { padding: 3rem 0; }
+            .section-title { font-size: 1.75rem; }
+
+            .url-cell { max-width: 140px; }
+
+            .result-url {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.65rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { font-size: 2.2rem; }
+            .nav-brand { font-size: 1rem; }
+            .tech-badges { gap: 0.4rem; }
+            .tech-badge { font-size: 0.7rem; padding: 0.4rem 0.75rem; }
+            .feature-card { padding: 1.5rem; }
+            .step { padding: 1.5rem 1.2rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .animate-in { opacity: 1; transform: none; }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <h1>🔗 PURL</h1>
-        <div class="auth-bar" id="authBar">
-            <button class="btn-sm btn-outline" onclick="openModal('login')">Log In</button>
-            <button class="btn-sm" onclick="openModal('register')">Sign Up</button>
-        </div>
-        <div class="auth-bar" id="userBar" style="display:none;">
-            <span class="username" id="displayUsername"></span>
-            <button class="btn-sm btn-secondary" onclick="logout()">Log Out</button>
+    <div class="content">
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="nav-brand">
+                <span class="bracket">{</span>P<span class="bracket">}</span> PURL
+            </div>
+            <div class="nav-auth" id="authBar">
+                <button class="btn btn-ghost btn-sm" onclick="openModal('login')">Log In</button>
+                <button class="btn btn-primary btn-sm" onclick="openModal('register')">Sign Up</button>
+            </div>
+            <div class="nav-auth" id="userBar" style="display:none;">
+                <span class="nav-username" id="displayUsername"></span>
+                <button class="btn btn-ghost btn-sm" onclick="logout()">Log Out</button>
+            </div>
+        </nav>
+
+        <!-- Hero -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-badge">Open Source URL Shortener</div>
+                <h1 class="hero-title">&lt;PURL /&gt;</h1>
+                <p class="hero-subtitle">Smart URL Shortener with AI-Powered Previews</p>
+                <p class="hero-desc">Transform long URLs into clean, shareable links. PURL uses AI to analyze destinations and generate intelligent previews, so your audience knows what they're clicking.</p>
+
+                <!-- Shortener Input -->
+                <div class="shortener">
+                    <span class="shortener-prompt">&gt;</span>
+                    <input type="text" id="urlInput" placeholder="paste your long url here..." />
+                    <button class="btn-shorten" id="shortenBtn" onclick="shortenUrl()">Shorten &rarr;</button>
+                </div>
+
+                <!-- Result -->
+                <div class="result" id="result">
+                    <div class="result-label">Your shortened URL</div>
+                    <div class="result-url">
+                        <a href="#" id="shortUrl" target="_blank"></a>
+                        <button class="copy-btn" onclick="copyUrl()">Copy</button>
+                    </div>
+                </div>
+
+                <!-- Error -->
+                <div class="error" id="error"></div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="section animate-in">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">// process</span>
+                    <h2 class="section-title">How It Works</h2>
+                    <div class="section-divider"></div>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">01</div>
+                        <div class="step-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="8" y="2" width="8" height="4" rx="1"/>
+                                <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/>
+                                <line x1="9" y1="14" x2="15" y2="14"/>
+                            </svg>
+                        </div>
+                        <h3>Paste</h3>
+                        <p>Drop any long URL into the input field above</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">02</div>
+                        <div class="step-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 7h3a5 5 0 010 10h-3M9 17H6a5 5 0 010-10h3"/>
+                                <line x1="8" y1="12" x2="16" y2="12"/>
+                            </svg>
+                        </div>
+                        <h3>Shorten</h3>
+                        <p>Get a clean, compact PURL link instantly</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">03</div>
+                        <div class="step-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="18" cy="5" r="3"/>
+                                <circle cx="6" cy="12" r="3"/>
+                                <circle cx="18" cy="19" r="3"/>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                            </svg>
+                        </div>
+                        <h3>Share</h3>
+                        <p>Recipients see an AI-generated preview before visiting</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="section animate-in">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">// features</span>
+                    <h2 class="section-title">Built Different</h2>
+                    <div class="section-divider"></div>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
+                            </svg>
+                        </div>
+                        <h3>AI-Powered Previews</h3>
+                        <p>Every shortened link gets an intelligent preview page. PURL analyzes destination content using AI to generate descriptions, so recipients know exactly where they're heading.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                        </div>
+                        <h3>Lightning Fast</h3>
+                        <p>Built on Spring Boot with optimized PostgreSQL queries. Short URLs resolve in milliseconds with efficient hash-based lookups and connection pooling.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                            </svg>
+                        </div>
+                        <h3>Link Management</h3>
+                        <p>Full dashboard to manage your links. Edit destinations on the fly, delete links you no longer need, and track when each link was created.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                        </div>
+                        <h3>Secure by Design</h3>
+                        <p>CSRF protection, session-based authentication, input sanitization, and XSS prevention. Every layer built with security best practices in mind.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack -->
+        <section class="tech-section animate-in">
+            <div class="container">
+                <div class="tech-label">Built With</div>
+                <div class="tech-badges">
+                    <span class="tech-badge">Kotlin</span>
+                    <span class="tech-badge">Spring Boot</span>
+                    <span class="tech-badge">PostgreSQL</span>
+                    <span class="tech-badge">Liquibase</span>
+                    <span class="tech-badge">AI / LLM</span>
+                    <span class="tech-badge">Thymeleaf</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- URL Table (logged-in users) -->
+        <section class="url-table-section" id="urlTableSection">
+            <div class="container">
+                <div class="url-table-wrap">
+                    <div class="url-table-header">Your Saved URLs</div>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Short URL</th>
+                            <th>Long URL</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="urlTableBody"></tbody>
+                    </table>
+                    <div class="empty-state" id="emptyState">No saved URLs yet. Shorten one above to get started!</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <p><span class="footer-brand">&lt;PURL /&gt;</span> &mdash; Smart URL Shortener with AI-Powered Previews</p>
+                <p style="margin-top: 0.5rem;"><a href="https://bamdev.fun">bamdev.fun</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal">
+            <div class="tab-bar">
+                <div class="tab active" id="tabLogin" onclick="switchTab('login')">Log In</div>
+                <div class="tab" id="tabRegister" onclick="switchTab('register')">Sign Up</div>
+            </div>
+            <div class="form-group">
+                <label for="authUsername">Username</label>
+                <input type="text" id="authUsername" placeholder="Enter username" />
+            </div>
+            <div class="form-group">
+                <label for="authPassword">Password</label>
+                <input type="password" id="authPassword" placeholder="Enter password" />
+            </div>
+            <div class="modal-error" id="modalError"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="authSubmitBtn" onclick="submitAuth()">Log In</button>
+            </div>
         </div>
     </div>
-    <p class="subtitle">Shorten your long URLs instantly</p>
 
-    <div class="input-group">
-        <input type="text" id="urlInput" placeholder="Paste your long URL here..."/>
-        <button id="shortenBtn" onclick="shortenUrl()">Shorten</button>
-    </div>
-
-    <div class="result" id="result">
-        <div class="result-label">Your shortened URL</div>
-        <div class="result-url">
-            <a href="#" id="shortUrl" target="_blank"></a>
-            <button class="copy-btn" onclick="copyUrl()">Copy</button>
-        </div>
-    </div>
-
-    <div class="error" id="error"></div>
-
-    <div class="url-table-section" id="urlTableSection">
-        <h3>📋 Your Saved URLs</h3>
-        <table>
-            <thead>
-            <tr>
-                <th>Short URL</th>
-                <th>Long URL</th>
-                <th>Created</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody id="urlTableBody"></tbody>
-        </table>
-        <div class="empty-state" id="emptyState">No saved URLs yet. Shorten a URL to get started!</div>
-    </div>
-</div>
-
-<!-- Auth Modal -->
-<div class="modal-overlay" id="authModal">
-    <div class="modal">
-        <div class="tab-bar">
-            <div class="tab active" id="tabLogin" onclick="switchTab('login')">Log In</div>
-            <div class="tab" id="tabRegister" onclick="switchTab('register')">Sign Up</div>
-        </div>
-        <div class="form-group">
-            <label for="authUsername">Username</label>
-            <input type="text" id="authUsername" placeholder="Enter username"/>
-        </div>
-        <div class="form-group">
-            <label for="authPassword">Password</label>
-            <input type="password" id="authPassword" placeholder="Enter password"/>
-        </div>
-        <div class="modal-error" id="modalError"></div>
-        <div class="modal-actions">
-            <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-            <button id="authSubmitBtn" onclick="submitAuth()">Log In</button>
-        </div>
-    </div>
-</div>
-
-<script src="/js/app.js"></script>
+    <script src="/js/app.js"></script>
 </body>
 </html>

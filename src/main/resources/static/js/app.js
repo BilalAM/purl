@@ -14,14 +14,23 @@ function secureHeaders(extra = {}) {
     return headers;
 }
 
-// Fetch CSRF cookie on page load (Spring Security sets it on first request)
 fetch('/api/auth/me', {credentials: 'same-origin'}).then(r => {
     if (r.ok) return r.json(); else throw 'not logged in';
 }).then(data => {
     currentUser = data.username;
     onLoginSuccess();
-}).catch(() => {
-});
+}).catch(() => {});
+
+// === Scroll Animations ===
+const scrollObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, {threshold: 0.1});
+
+document.querySelectorAll('.animate-in').forEach(el => scrollObserver.observe(el));
 
 // === Auth Modal ===
 function openModal(mode) {
@@ -85,7 +94,7 @@ async function submitAuth() {
 function onLoginSuccess() {
     document.getElementById('authBar').style.display = 'none';
     document.getElementById('userBar').style.display = 'flex';
-    document.getElementById('displayUsername').textContent = '\u{1F464} ' + currentUser;
+    document.getElementById('displayUsername').textContent = '@' + currentUser;
     document.getElementById('urlTableSection').classList.add('show');
     loadUserUrls();
 }
@@ -112,8 +121,7 @@ async function loadUserUrls() {
         const res = await fetch('/api/urls', {credentials: 'same-origin'});
         if (!res.ok) return;
         renderUrlTable(await res.json());
-    } catch (_) {
-    }
+    } catch (_) {}
 }
 
 function renderUrlTable(urls) {
@@ -130,13 +138,13 @@ function renderUrlTable(urls) {
         tr.id = 'row-' + u.id;
         const created = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '-';
         tr.innerHTML = `
-                <td class="url-cell"><a href="${escapeHtml(u.shortUrl)}" target="_blank">${escapeHtml(u.shortUrl)}</a></td>
-                <td class="url-cell" id="long-${u.id}"><a href="${escapeHtml(u.longUrl)}" target="_blank" title="${escapeHtml(u.longUrl)}">${escapeHtml(u.longUrl)}</a></td>
-                <td>${escapeHtml(created)}</td>
-                <td><div class="actions-cell">
-                    <button class="btn-sm btn-outline" data-edit-id="${u.id}">Edit</button>
-                    <button class="btn-sm btn-danger" data-delete-id="${u.id}">Delete</button>
-                </div></td>`;
+            <td class="url-cell"><a href="${escapeHtml(u.shortUrl)}" target="_blank">${escapeHtml(u.shortUrl)}</a></td>
+            <td class="url-cell" id="long-${u.id}"><a href="${escapeHtml(u.longUrl)}" target="_blank" title="${escapeHtml(u.longUrl)}">${escapeHtml(u.longUrl)}</a></td>
+            <td>${escapeHtml(created)}</td>
+            <td><div class="actions-cell">
+                <button class="btn btn-outline btn-sm" data-edit-id="${u.id}">Edit</button>
+                <button class="btn btn-danger btn-sm" data-delete-id="${u.id}">Delete</button>
+            </div></td>`;
         tr.querySelector('[data-edit-id]').addEventListener('click', () => startEdit(u.id, u.longUrl));
         tr.querySelector('[data-delete-id]').addEventListener('click', () => deleteUrl(u.id));
         tbody.appendChild(tr);
@@ -147,7 +155,7 @@ function startEdit(id, currentLongUrl) {
     const cell = document.getElementById('long-' + id);
     cell.innerHTML = '';
     const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'display:flex;gap:6px;';
+    wrapper.style.cssText = 'display:flex;gap:6px;align-items:center;';
 
     const input = document.createElement('input');
     input.type = 'text';
@@ -156,12 +164,12 @@ function startEdit(id, currentLongUrl) {
     input.value = currentLongUrl;
 
     const saveBtn = document.createElement('button');
-    saveBtn.className = 'btn-sm';
+    saveBtn.className = 'btn btn-primary btn-sm';
     saveBtn.textContent = 'Save';
     saveBtn.addEventListener('click', () => saveEdit(id));
 
     const cancelBtn = document.createElement('button');
-    cancelBtn.className = 'btn-sm btn-secondary';
+    cancelBtn.className = 'btn btn-secondary btn-sm';
     cancelBtn.textContent = '\u2715';
     cancelBtn.addEventListener('click', () => loadUserUrls());
 
@@ -238,15 +246,15 @@ async function shortenUrl() {
         showError(err.message);
     } finally {
         shortenBtn.disabled = false;
-        shortenBtn.textContent = 'Shorten';
+        shortenBtn.innerHTML = 'Shorten \u2192';
     }
 }
 
 function copyUrl() {
     navigator.clipboard.writeText(shortUrlLink.href).then(() => {
-        const copyBtn = document.querySelector('.copy-btn');
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
     });
 }
 

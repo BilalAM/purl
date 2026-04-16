@@ -10,45 +10,48 @@
     <meta property="og:description" th:content="${description}" />
     <meta property="og:image" th:if="${!imageUrl.isEmpty()}" th:content="${imageUrl}" />
 
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect rx='8' width='32' height='32' fill='%230d9488'/><text x='50%25' y='55%25' text-anchor='middle' dominant-baseline='middle' font-size='18' font-weight='bold' fill='white' font-family='monospace'>P</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --bg: #fafaf9;
+            --bg-card: #ffffff;
+            --bg-elevated: #f3f3f0;
+            --border: rgba(28, 25, 23, 0.06);
+            --text: #44403c;
+            --text-heading: #1c1917;
+            --text-secondary: #57534e;
+            --text-muted: #a8a29e;
+            --accent: #0d9488;
+            --accent-light: #14b8a6;
+            --accent-dark: #0f766e;
+            --accent-glow: rgba(13, 148, 136, 0.08);
+            --gradient: linear-gradient(135deg, #0d9488, #14b8a6);
+            --font: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --shadow: rgba(100, 100, 111, 0.15) 0px 7px 29px 0px;
+            --shadow-sm: 0 2px 8px rgba(100, 100, 111, 0.08);
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f0f1a;
+            font-family: var(--font);
+            background: var(--bg);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            overflow: hidden;
+            padding: 1.5rem;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Animated background blobs */
-        body::before, body::after {
-            content: '';
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            z-index: 0;
-            animation: float 8s ease-in-out infinite;
-        }
-        body::before {
-            width: 400px; height: 400px;
-            background: #667eea;
-            top: -100px; left: -100px;
-        }
-        body::after {
-            width: 350px; height: 350px;
-            background: #764ba2;
-            bottom: -80px; right: -80px;
-            animation-delay: -4s;
-            animation-direction: reverse;
-        }
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(30px, 20px) scale(1.05); }
+        ::selection {
+            background: var(--accent);
+            color: #fff;
         }
 
         .wrapper {
@@ -58,91 +61,99 @@
             z-index: 1;
             animation: slideUp 0.5s ease-out;
         }
+
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(24px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .card {
-            background: rgba(255,255,255,0.97);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: 20px;
-            box-shadow:
-                0 4px 24px rgba(0,0,0,0.12),
-                0 24px 48px rgba(0,0,0,0.16);
+            box-shadow: var(--shadow);
             overflow: hidden;
-            backdrop-filter: blur(20px);
         }
 
         /* Image section */
         .card-image-wrapper {
             position: relative;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient);
             min-height: 60px;
         }
+
         .card-image {
             width: 100%;
             max-height: 180px;
             object-fit: cover;
             display: block;
         }
+
         .card-image-wrapper .overlay {
             position: absolute;
             bottom: 0; left: 0; right: 0;
             height: 60px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.3));
+            background: linear-gradient(transparent, rgba(0,0,0,0.15));
         }
 
         /* No-image header band */
         .card-header-band {
-            height: 6px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 4px;
+            background: var(--gradient);
         }
 
-        .card-body { padding: 28px 28px 24px; }
+        .card-body { padding: 1.75rem; }
 
         /* Site info row */
         .site-row {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 1rem;
         }
+
         .site-favicon {
             width: 20px; height: 20px;
             border-radius: 4px;
-            background: #f0f0f0;
+            background: var(--bg-elevated);
         }
+
         .site-name {
-            font-size: 13px;
+            font-family: var(--mono);
+            font-size: 0.75rem;
             font-weight: 600;
-            color: #667eea;
+            color: var(--accent);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .badge {
             margin-left: auto;
-            background: rgba(102,126,234,0.1);
-            color: #667eea;
-            font-size: 10px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            font-family: var(--mono);
+            font-size: 0.625rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            padding: 4px 10px;
-            border-radius: 20px;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(13, 148, 136, 0.15);
         }
 
         .description {
-            color: #333;
-            font-size: 15px;
+            color: var(--text);
+            font-size: 0.95rem;
             line-height: 1.7;
-            margin-bottom: 12px;
+            margin-bottom: 0.75rem;
         }
+
         .ai-disclaimer {
-            font-size: 11px;
-            font-weight: 600;
-            color: #a0a0b0;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
             font-style: italic;
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
 
         /* URL pill */
@@ -150,21 +161,25 @@
             display: flex;
             align-items: flex-start;
             gap: 8px;
-            background: #f5f6f8;
-            border: 1px solid #ecedf0;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 20px;
+            padding: 0.65rem 0.9rem;
+            margin-bottom: 1.25rem;
         }
+
         .url-icon {
             flex-shrink: 0;
             width: 16px; height: 16px;
-            color: #999;
+            color: var(--text-muted);
+            margin-top: 1px;
         }
+
         .url-text {
-            font-size: 12px;
-            font-weight: 700;
-            color: #555;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
             word-break: break-all;
         }
 
@@ -172,74 +187,92 @@
         .go-btn {
             display: block;
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0.9rem;
+            background: var(--accent);
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 15px;
+            border-radius: 10px;
+            font-family: var(--font);
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
         }
+
         .go-btn:hover {
+            background: var(--accent-dark);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+            box-shadow: var(--shadow);
         }
+
         .go-btn:active { transform: translateY(0); }
 
         /* Progress */
         .progress-section {
-            margin-top: 16px;
+            margin-top: 1rem;
             text-align: center;
         }
+
         .progress-track {
             width: 100%;
             height: 3px;
-            background: #ecedf0;
+            background: var(--bg-elevated);
             border-radius: 2px;
             overflow: hidden;
-            margin-bottom: 12px;
+            margin-bottom: 0.75rem;
         }
+
         .progress-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient);
             border-radius: 2px;
         }
+
         .countdown-text {
-            font-size: 12px;
-            color: #aaa;
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
             letter-spacing: 0.3px;
         }
+
         .cancel-link {
             display: inline-block;
-            margin-top: 6px;
-            font-size: 12px;
-            color: #bbb;
+            margin-top: 0.4rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
             cursor: pointer;
             text-decoration: none;
-            border-bottom: 1px dashed #ccc;
+            border-bottom: 1px dashed var(--text-muted);
             transition: color 0.2s;
         }
-        .cancel-link:hover { color: #888; border-color: #888; }
+
+        .cancel-link:hover {
+            color: var(--text-secondary);
+            border-color: var(--text-secondary);
+        }
+
         .cancelled .progress-fill { transition: none; }
 
         .powered-by {
             text-align: center;
-            margin-top: 20px;
-            font-size: 11px;
-            color: rgba(255,255,255,0.35);
+            margin-top: 1.25rem;
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
             letter-spacing: 0.5px;
         }
+
         .powered-by a {
-            color: rgba(255,255,255,0.5);
+            color: var(--accent);
             text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
         }
+
+        .powered-by a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -267,7 +300,7 @@
                 </div>
 
                 <p class="description" th:text="${description}"></p>
-                <p class="ai-disclaimer">This description was generated by A.I. based on the website content and may not be fully accurate.</p>
+                <p class="ai-disclaimer">This description was generated by AI based on the website content and may not be fully accurate.</p>
 
                 <!-- URL pill -->
                 <div class="url-display">
@@ -291,7 +324,7 @@
                 </div>
             </div>
         </div>
-        <div class="powered-by">Powered by <a href="/">PURL</a></div>
+        <div class="powered-by">Powered by <a href="/">&lt;PURL /&gt;</a></div>
     </div>
 
     <script th:inline="javascript">
