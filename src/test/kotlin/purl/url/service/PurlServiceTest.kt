@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
+import purl.url.linkanalysis.LinkAnalysisLLMService
 import purl.url.model.Mapping
 import purl.url.model.MappingRepository
 import java.util.*
@@ -12,12 +13,14 @@ import java.util.*
 class PurlServiceTest {
 
     private lateinit var mappingRepository: MappingRepository
+    private lateinit var linkAnalysisLLMService: LinkAnalysisLLMService
     private lateinit var purlService: PurlService
 
     @BeforeEach
     fun setUp() {
         mappingRepository = mock(MappingRepository::class.java)
-        purlService = PurlService(mappingRepository,"http://localhost:8080/purl/")
+        linkAnalysisLLMService = mock(LinkAnalysisLLMService::class.java)
+        purlService = PurlService(mappingRepository,linkAnalysisLLMService,"http://localhost:8080/purl/")
     }
 
     @Test
