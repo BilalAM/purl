@@ -41,7 +41,6 @@ class SecurityConfiguration {
                     .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
                     .requestMatchers("/generate", "/purl/**").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
-                    // Protected endpoints — only authenticated users
                     .requestMatchers("/api/urls/**").authenticated()
                     .anyRequest().permitAll()
             }

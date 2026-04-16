@@ -10,8 +10,6 @@ interface MappingRepository : CrudRepository<Mapping, String> {
     @Query("select nextval('mapping_id_seq')", nativeQuery = true)
     fun getNextCounterSeed(): String
 
-    fun findMappingByShortUrl(shortUrl: String): Mapping?
-
     fun findMappingByLongUrlHashed(longUrlHashed: String): List<Mapping?>
 
     fun findAllByUserIdOrderByCreatedAtDesc(userId: Long): List<Mapping>
