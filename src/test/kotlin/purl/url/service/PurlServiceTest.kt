@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
-import purl.url.linkanalysis.LinkAnalysisLLMService
+import purl.linkanalysis.LinkAnalysisLLMService
 import purl.url.model.Mapping
 import purl.url.model.MappingRepository
 import java.util.*

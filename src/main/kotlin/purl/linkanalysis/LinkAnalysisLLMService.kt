@@ -1,4 +1,4 @@
-package purl.url.linkanalysis
+package purl.linkanalysis
 
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.stereotype.Service

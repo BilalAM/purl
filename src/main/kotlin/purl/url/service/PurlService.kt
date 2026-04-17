@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import purl.url.exceptions.UserCreatedMaxUrlsException
-import purl.url.linkanalysis.LinkAnalysisLLMService
+import purl.linkanalysis.LinkAnalysisLLMService
 import purl.url.model.Mapping
 import purl.url.model.MappingRepository
 import java.util.*

@@ -1,4 +1,4 @@
-package purl.url.linkanalysis
+package purl.linkanalysis
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
